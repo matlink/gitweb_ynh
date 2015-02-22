@@ -1,0 +1,9 @@
+#! /bin/bash
+
+app=gitweb
+
+domain=$(sudo yunohost app setting $app domain)
+final_path=$(sudo yunohost app setting $app final_path)
+sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
+sudo rm -rf $final_path
+sudo deluser www-data git

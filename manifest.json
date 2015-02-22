@@ -1,0 +1,53 @@
+{
+    "name": "Gitweb",
+    "id": "gitweb",
+    "description": {
+        "en": "Web interface to see gitolite repositories",
+        "fr": "Une interface web pour consulter les dépôts gitolite"
+    },
+    "developer": {
+        "name": "Matlink",
+        "email": "matlink@matlink.fr"
+    },
+    "multi_instance": "false",
+    "arguments": {
+        "install" : [
+            {
+                "name": "domain",
+                "ask": {
+                    "en": "Choose a domain for Gitweb",
+                    "fr": "Choisissez un domaine pour Gitweb"
+                },
+                "example": "domain.org"
+            },
+            {
+                "name": "path",
+                "ask": {
+                    "en": "Choose a path for Gitweb",
+                    "fr": "Choisissez un chemin pour Gitweb"
+                },
+                "example": "/gitweb",
+                "default": "/gitweb"
+            },
+            {
+                "name": "admin",
+                "ask": {
+                    "en": "Choose an admin user for Gitweb",
+                    "fr": "Choisissez un administrateur pour Gitweb"
+                },
+                "example": "homer"
+            },
+            {
+                "name": "public_site",
+                "ask": {
+                    "en": "Should this application be public ?",
+                    "fr": "Est-ce que cette application doit être visible publiquement ?"
+                },
+                "choices": ["Yes", "No"],
+                "default": "No"
+            }
+
+
+        ]
+    }
+}
