@@ -1,43 +1,57 @@
 #! /bin/bash
+set -eu
 
+# Source app helpers
+. /usr/share/yunohost/helpers
+
+# This is a single instance app
 app=gitweb
 
-domain=$1
-path=$2
-admin=$3
-is_public=$4
-final_path=/var/www$path
+# Retrieve arguments
+domain=$YNH_APP_ARG_DOMAIN
+path_url=$YNH_APP_ARG_PATH
+admin=$YNH_APP_ARG_ADMIN
+is_public=$YNH_APP_ARG_IS_PUBLIC
+final_path=/var/www/$path
 
 # Check domain/path availability
-sudo yunohost app checkurl $domain$path -a $app
-if [[ ! $? -eq 0 ]]; then
-	echo "Path of the domain is not available"
-	exit 1
-fi
+sudo yunohost app checkurl "${domain}${path_url}" -a "$app" \
+|| ynh_die "Path not available: ${domain}${path_url}"
 
 # Check user
 sudo yunohost user list --json | grep -q "\"username\": \"$admin\""
 if [[ ! $? -eq 0 ]]; then
 	echo "Error : the chosen admin user does not exist"
-	exit 1
+	ynh_die 1
 fi
 
 # Check /var/www/$app path is available
 if [ -f $final_path ]; then
 	echo "This path already contains a folder"
-	exit 1
+	ynh_die 1
 fi
 
-# Save app settings
-sudo yunohost app setting $app admin -v "$admin"
-sudo yunohost app setting $app is_public -v "$is_public"
-sudo yunohost app setting $app final_path -v "$final_path"
+# Check destination directory
+[[ -d $final_path ]] && ynh_die \
+"The destination directory '$final_path' already exists.\
+ You should safely delete it before installing this app."
 
-echo "Updating apt ..."
+# Check user parameter
+ynh_user_exists "$admin" \
+  || ynh_die "The chosen admin user does not exist."
+
+# Save app settings
+ynh_app_setting_set $app admin $admin
+ynh_app_setting_set $app is_public "$is_public"
+ynh_app_setting_set $app final_path "$final_path"
+
+# Installing packages
+echo "Updating apt package db..."
 sudo apt-get -qq update
 echo "Installing dependancies ..."
 sudo apt-get install -qqy fcgiwrap gitweb >/dev/null 2>&1
 
+# Adding user www-data to group git
 sudo adduser www-data git 
 
 sudo cp ../conf/gitweb.conf /etc/gitweb.conf
@@ -46,7 +60,7 @@ sudo chmod 644 /etc/gitweb.conf
 
 sudo ln -s /usr/share/gitweb $final_path
 sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/$app.conf
-sudo sed -i "s,YNH_NGINX_PATH,$path,g" /etc/nginx/conf.d/$domain.d/$app.conf
+sudo sed -i "s@YNH_WWW_PATH@$path_url@g" /etc/nginx/conf.d/$domain.d/$app.conf
 sudo chown root: /etc/nginx/conf.d/$domain.d/$app.conf
 sudo chmod 600 /etc/nginx/conf.d/$domain.d/$app.conf
 
@@ -54,10 +68,10 @@ sudo chmod 600 /etc/nginx/conf.d/$domain.d/$app.conf
 sudo yunohost app addaccess $app -u $admin
 
 # If app is public, add url to SSOWat conf as skipped_uris
-if [ "$is_public" = "Yes" ];
-then
-	sudo yunohost app setting $app skipped_uris -v "/"
+if [[ $is_public -eq 1 ]]; then
+  # unprotected_uris allows SSO credentials to be passed anyway.
+  ynh_app_setting_set "$app" unprotected_uris "/"
 fi
 
-sudo service nginx restart
+sudo service nginx reload
 sudo yunohost app ssowatconf

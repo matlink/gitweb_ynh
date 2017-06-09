@@ -1,19 +1,30 @@
 {
     "name": "Gitweb",
     "id": "gitweb",
+    "packaging_format": 1,
+    "url": "https://github.com/rigelk/gitweb_ynh",
     "description": {
         "en": "Web interface to see gitolite repositories",
         "fr": "Une interface web pour consulter les dépôts gitolite"
     },
-    "developer": {
-        "name": "Matlink",
-        "email": "matlink@matlink.fr"
+    "maintainer": {
+        "name": "rigelk",
+        "email": "par@rigelk.eu",
+        "url": "https://rigelk.eu"
     },
-    "multi_instance": "false",
+    "requirements": {
+        "yunohost": ">> 2.5.4"
+    },
+    "license": "free",
+    "services": [
+        "nginx"
+    ],
+    "multi_instance": false,
     "arguments": {
         "install" : [
             {
                 "name": "domain",
+		"type": "domain",
                 "ask": {
                     "en": "Choose a domain for Gitweb",
                     "fr": "Choisissez un domaine pour Gitweb"
@@ -22,6 +33,7 @@
             },
             {
                 "name": "path",
+                "type": "path",
                 "ask": {
                     "en": "Choose a path for Gitweb",
                     "fr": "Choisissez un chemin pour Gitweb"
@@ -31,6 +43,7 @@
             },
             {
                 "name": "admin",
+		"type": "user",
                 "ask": {
                     "en": "Choose an admin user for Gitweb",
                     "fr": "Choisissez un administrateur pour Gitweb"
@@ -38,13 +51,13 @@
                 "example": "homer"
             },
             {
-                "name": "public_site",
+                "name": "is_public",
+		"type": "boolean",
                 "ask": {
                     "en": "Should this application be public ?",
                     "fr": "Est-ce que cette application doit être visible publiquement ?"
                 },
-                "choices": ["Yes", "No"],
-                "default": "No"
+                "default": true
             }
 
 
