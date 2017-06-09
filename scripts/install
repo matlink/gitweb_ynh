@@ -5,7 +5,7 @@ set -eu
 . /usr/share/yunohost/helpers
 
 # This is a single instance app
-app=gitweb
+app=$YNH_APP_INSTANCE_NAME
 
 # Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
@@ -14,7 +14,7 @@ admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 git_project_root=$YNH_APP_ARG_GIT_PROJECT_ROOT
 
-final_path=/var/www/$path_url
+final_path=/var/www/$app
 
 # Check domain/path availability
 sudo yunohost app checkurl "${domain}${path_url}" -a "$app" \
@@ -46,7 +46,7 @@ ynh_user_exists "$admin" \
   || ynh_die "The chosen admin user does not exist."
 
 # Save app settings
-ynh_app_setting_set $app admin $admin
+ynh_app_setting_set $app admin "$admin"
 ynh_app_setting_set $app is_public "$is_public"
 ynh_app_setting_set $app final_path "$final_path"
 
@@ -66,12 +66,12 @@ sudo chmod 644 /etc/gitweb.conf
 sudo ln -s /usr/share/gitweb $final_path
 sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/$app.conf
 sudo sed -i "s@YNH_WWW_PATH@$path_url@g" /etc/nginx/conf.d/$domain.d/$app.conf
+sudo sed -i "s@YNH_APP_PATH@$final_path@g" /etc/nginx/conf.d/$domain.d/$app.conf
 sudo sed -i "s@YNH_GIT_PROJECT_ROOT@$git_project_root@g" /etc/nginx/conf.d/$domain.d/$app.conf
 sudo chown root: /etc/nginx/conf.d/$domain.d/$app.conf
 sudo chmod 600 /etc/nginx/conf.d/$domain.d/$app.conf
 
-
-sudo yunohost app addaccess $app -u $admin
+sudo yunohost app addaccess --users="$admin" $app
 
 # If app is public, add url to SSOWat conf as skipped_uris
 if [[ $is_public -eq 1 ]]; then
