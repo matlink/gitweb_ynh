@@ -12,7 +12,9 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
-final_path=/var/www/$path
+git_project_root=$YNH_APP_ARG_GIT_PROJECT_ROOT
+
+final_path=/var/www/$path_url
 
 # Check domain/path availability
 sudo yunohost app checkurl "${domain}${path_url}" -a "$app" \
@@ -31,10 +33,13 @@ if [ -f $final_path ]; then
 	ynh_die 1
 fi
 
-# Check destination directory
+# Check directories 
 [[ -d $final_path ]] && ynh_die \
 "The destination directory '$final_path' already exists.\
  You should safely delete it before installing this app."
+[[ ! -d $git_project_root ]] && ynh_die \
+"The git project root directory '$git_project_root' doesn't exist.\
+ You should safely create it/choose another before installing this app."
 
 # Check user parameter
 ynh_user_exists "$admin" \
@@ -61,6 +66,7 @@ sudo chmod 644 /etc/gitweb.conf
 sudo ln -s /usr/share/gitweb $final_path
 sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/$app.conf
 sudo sed -i "s@YNH_WWW_PATH@$path_url@g" /etc/nginx/conf.d/$domain.d/$app.conf
+sudo sed -i "s@YNH_GIT_PROJECT_ROOT@$git_project_root@g" /etc/nginx/conf.d/$domain.d/$app.conf
 sudo chown root: /etc/nginx/conf.d/$domain.d/$app.conf
 sudo chmod 600 /etc/nginx/conf.d/$domain.d/$app.conf
 

@@ -42,10 +42,20 @@
                 "default": "/gitweb"
             },
             {
+                "name": "git_project_root",
+                "type": "path",
+                "ask": {
+                    "en": "Choose an existing git project root for Gitweb",
+                    "fr": "Choisissez un chemin existant où chercher vos projects git pour Gitweb"
+                },
+                "example": "/home/git/repositories",
+                "default": "/home/git/repositories"
+	    },
+            {
                 "name": "admin",
 		"type": "user",
                 "ask": {
-                    "en": "Choose an admin user for Gitweb",
+                    "en": "Choose an admin for Gitweb",
                     "fr": "Choisissez un administrateur pour Gitweb"
                 },
                 "example": "homer"
