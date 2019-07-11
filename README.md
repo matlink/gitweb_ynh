@@ -1,4 +1,4 @@
-# Abandonned. Use at your own risks.
+# Abandoned. Use at your own risks.
 
 # gitweb_ynh
 A Web interface for git. This instance will be configured to manage Gitolite.
