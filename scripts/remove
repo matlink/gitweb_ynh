@@ -1,9 +1,13 @@
 #! /bin/bash
+set -u
 
-app=gitweb
+# Source app helpers
+. /usr/share/yunohost/helpers
 
-domain=$(sudo yunohost app setting $app domain)
-final_path=$(sudo yunohost app setting $app final_path)
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_set $app domain)
+final_path=$(ynh_app_setting_set $app final_path)
 sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
 sudo rm -rf $final_path
 sudo deluser www-data git
